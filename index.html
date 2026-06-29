@@ -1,0 +1,1287 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Gemini e NotebookLM na Sala de Aula · Escola São Tiago</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link
+    href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@500&display=swap"
+    rel="stylesheet">
+  <style>
+    *,
+    *::before,
+    *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    :root {
+      --ink: #1a1a2e;
+      --ink-soft: #444460;
+      --paper: #f7f6f2;
+      --white: #ffffff;
+      --jade: #1c7a5e;
+      --jade-light: #e8f5f0;
+      --amber: #d4820a;
+      --amber-light: #fef4e0;
+      --rule: #d9d8d2;
+      --gem: #5c4fc7;
+      --gem-light: #eeecfc;
+      --nb: #1c7a5e;
+
+      --fs-hero: clamp(2.6rem, 6vw, 5rem);
+      --fs-h2: clamp(1.5rem, 3vw, 2.2rem);
+      --fs-h3: clamp(1.1rem, 2vw, 1.35rem);
+      --fs-body: 1rem;
+      --fs-small: 0.875rem;
+      --fs-tag: 0.72rem;
+
+      --radius: 12px;
+      --radius-sm: 6px;
+      --max: 1100px;
+    }
+
+    html {
+      scroll-behavior: smooth;
+    }
+
+    body {
+      font-family: 'Inter', system-ui, sans-serif;
+      background: var(--paper);
+      color: var(--ink);
+      line-height: 1.65;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    /* ── NAV ── */
+    nav {
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      background: rgba(247, 246, 242, 0.92);
+      backdrop-filter: blur(12px);
+      border-bottom: 1px solid var(--rule);
+      padding: 0 clamp(1rem, 4vw, 2rem);
+      height: 56px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .nav-brand {
+      font-family: 'DM Serif Display', serif;
+      font-size: 1.05rem;
+      color: var(--ink);
+      text-decoration: none;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .nav-brand span {
+      color: var(--jade);
+    }
+
+    .nav-links {
+      display: flex;
+      gap: 1.5rem;
+      list-style: none;
+    }
+
+    .nav-links a {
+      font-size: var(--fs-small);
+      font-weight: 500;
+      color: var(--ink-soft);
+      text-decoration: none;
+      transition: color .2s;
+    }
+
+    .nav-links a:hover {
+      color: var(--ink);
+    }
+
+    @media (max-width: 640px) {
+      nav {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: .5rem;
+        height: auto;
+        padding: .5rem clamp(1rem, 4vw, 2rem);
+      }
+
+      .nav-links {
+        flex-wrap: wrap;
+        gap: .8rem;
+      }
+    }
+
+    /* ── HERO ── */
+    .hero {
+      max-width: var(--max);
+      margin: 0 auto;
+      padding: clamp(4rem, 10vw, 7rem) clamp(1rem, 4vw, 2rem) clamp(3rem, 7vw, 5rem);
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 3rem;
+      align-items: center;
+    }
+
+    @media (max-width: 700px) {
+      .hero {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .hero-eyebrow {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: var(--fs-tag);
+      font-weight: 500;
+      letter-spacing: .12em;
+      text-transform: uppercase;
+      color: var(--jade);
+      margin-bottom: 1.1rem;
+      display: flex;
+      align-items: center;
+      gap: .5rem;
+    }
+
+    .hero-eyebrow::before {
+      content: '';
+      display: block;
+      width: 28px;
+      height: 2px;
+      background: var(--jade);
+    }
+
+    h1 {
+      font-family: 'DM Serif Display', serif;
+      font-size: var(--fs-hero);
+      line-height: 1.1;
+      letter-spacing: -.02em;
+      color: var(--ink);
+      margin-bottom: 1.4rem;
+    }
+
+    h1 em {
+      font-style: italic;
+      color: var(--jade);
+    }
+
+    .hero-sub {
+      font-size: 1.1rem;
+      color: var(--ink-soft);
+      max-width: 46ch;
+      margin-bottom: 2rem;
+      line-height: 1.7;
+    }
+
+    .hero-ctas {
+      display: flex;
+      gap: .8rem;
+      flex-wrap: wrap;
+    }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      gap: .45rem;
+      padding: .72rem 1.4rem;
+      border-radius: var(--radius-sm);
+      font-size: var(--fs-small);
+      font-weight: 600;
+      text-decoration: none;
+      transition: all .18s;
+      cursor: pointer;
+      border: none;
+    }
+
+    .btn-primary {
+      background: var(--jade);
+      color: #fff;
+    }
+
+    .btn-primary:hover {
+      background: #165f49;
+    }
+
+    .btn-ghost {
+      background: transparent;
+      color: var(--ink);
+      border: 1.5px solid var(--rule);
+    }
+
+    .btn-ghost:hover {
+      border-color: var(--ink-soft);
+    }
+
+    /* hero visual */
+    .hero-visual {
+      background: var(--white);
+      border-radius: var(--radius);
+      border: 1px solid var(--rule);
+      padding: 1.6rem;
+      box-shadow: 0 4px 32px rgba(26, 26, 46, .07);
+    }
+
+    .tool-row {
+      display: flex;
+      align-items: flex-start;
+      gap: 1rem;
+      padding: 1rem 0;
+      border-bottom: 1px solid var(--rule);
+    }
+
+    .tool-row:last-child {
+      border-bottom: none;
+      padding-bottom: 0;
+    }
+
+    .tool-icon {
+      width: 40px;
+      height: 40px;
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.15rem;
+      flex-shrink: 0;
+    }
+
+    .icon-gem {
+      background: var(--gem-light);
+    }
+
+    .icon-nb {
+      background: var(--jade-light);
+    }
+
+    .tool-label {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: .7rem;
+      font-weight: 500;
+      letter-spacing: .08em;
+      text-transform: uppercase;
+      color: var(--ink-soft);
+      margin-bottom: .25rem;
+    }
+
+    .tool-desc {
+      font-size: var(--fs-small);
+      color: var(--ink-soft);
+      line-height: 1.5;
+    }
+
+    .tool-name {
+      font-weight: 600;
+      color: var(--ink);
+    }
+
+    /* ── SECTION BASE ── */
+    section {
+      max-width: var(--max);
+      margin: 0 auto;
+      padding: clamp(3rem, 7vw, 5rem) clamp(1rem, 4vw, 2rem);
+    }
+
+    .section-divider {
+      max-width: var(--max);
+      margin: 0 auto;
+      padding: 0 clamp(1rem, 4vw, 2rem);
+      border-top: 1px solid var(--rule);
+    }
+
+    .section-eyebrow {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: var(--fs-tag);
+      font-weight: 500;
+      letter-spacing: .12em;
+      text-transform: uppercase;
+      color: var(--jade);
+      margin-bottom: .9rem;
+    }
+
+    h2 {
+      font-family: 'DM Serif Display', serif;
+      font-size: var(--fs-h2);
+      line-height: 1.2;
+      letter-spacing: -.015em;
+      margin-bottom: 1rem;
+    }
+
+    h3 {
+      font-family: 'DM Serif Display', serif;
+      font-size: var(--fs-h3);
+      line-height: 1.3;
+      margin-bottom: .6rem;
+    }
+
+    p {
+      color: var(--ink-soft);
+      margin-bottom: 1rem;
+    }
+
+    /* ── DOIS CAMINHOS ── */
+    .paths-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1.5rem;
+      margin-top: 2.5rem;
+    }
+
+    @media (max-width: 640px) {
+      .paths-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .path-card {
+      border-radius: var(--radius);
+      padding: 2rem;
+      border: 1px solid var(--rule);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .path-card.gem-card {
+      background: var(--gem-light);
+      border-color: #c5bff5;
+    }
+
+    .path-card.nb-card {
+      background: var(--jade-light);
+      border-color: #a8ddd0;
+    }
+
+    .path-card-tag {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: var(--fs-tag);
+      font-weight: 500;
+      letter-spacing: .1em;
+      text-transform: uppercase;
+      margin-bottom: .7rem;
+      display: inline-block;
+      padding: .25rem .6rem;
+      border-radius: 4px;
+    }
+
+    .gem-tag {
+      color: var(--gem);
+      background: #dcd8fa;
+    }
+
+    .nb-tag {
+      color: var(--jade);
+      background: #c3ece2;
+    }
+
+    .path-card h3 {
+      font-size: 1.4rem;
+      margin-bottom: .5rem;
+      color: var(--ink);
+    }
+
+    .path-card .tagline {
+      font-size: var(--fs-small);
+      color: var(--ink-soft);
+      margin-bottom: 1.2rem;
+    }
+
+    .path-list {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: .5rem;
+    }
+
+    .path-list li {
+      font-size: var(--fs-small);
+      color: var(--ink-soft);
+      display: flex;
+      align-items: flex-start;
+      gap: .5rem;
+    }
+
+    .path-list li::before {
+      content: '→';
+      font-weight: 600;
+      flex-shrink: 0;
+      margin-top: .05rem;
+    }
+
+    .gem-card .path-list li::before {
+      color: var(--gem);
+    }
+
+    .nb-card .path-list li::before {
+      color: var(--jade);
+    }
+
+    /* ── PROMPT EXEMPLO ── */
+    .prompt-section {
+      background: var(--ink);
+      border-radius: var(--radius);
+    }
+
+    .prompt-inner {
+      max-width: var(--max);
+      margin: 0 auto;
+      padding: clamp(2.5rem, 6vw, 4rem) clamp(1rem, 4vw, 2rem);
+      display: grid;
+      grid-template-columns: 1fr 1.5fr;
+      gap: 3rem;
+      align-items: start;
+    }
+
+    @media (max-width: 700px) {
+      .prompt-inner {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .prompt-section .section-eyebrow {
+      color: #6edfc0;
+    }
+
+    .prompt-section h2 {
+      color: #ffffff;
+    }
+
+    .prompt-section p {
+      color: #a0a0bc;
+    }
+
+    .prompt-compare {
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+    }
+
+    .prompt-block {
+      border-radius: var(--radius-sm);
+      padding: 1.25rem 1.4rem;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: .8rem;
+      line-height: 1.6;
+    }
+
+    .prompt-block.bad {
+      background: #2c2c3e;
+      color: #888898;
+      border: 1px solid #3a3a50;
+    }
+
+    .prompt-block.good {
+      background: #162e25;
+      color: #a8ddd0;
+      border: 1px solid #1f4d38;
+    }
+
+    .prompt-label {
+      font-size: .65rem;
+      letter-spacing: .12em;
+      text-transform: uppercase;
+      font-weight: 600;
+      margin-bottom: .6rem;
+      display: block;
+    }
+
+    .bad .prompt-label {
+      color: #e07070;
+    }
+
+    .good .prompt-label {
+      color: #6edfc0;
+    }
+
+    /* ── NOTEBOOKLM ── */
+    .nb-section {
+      background: var(--jade);
+      border-radius: var(--radius);
+    }
+
+    .nb-section .section-eyebrow {
+      color: #a8ddd0;
+    }
+
+    .nb-section h2 {
+      color: #ffffff;
+    }
+
+    .nb-section p {
+      color: #c3ece2;
+    }
+
+    .nb-inner {
+      max-width: var(--max);
+      margin: 0 auto;
+      padding: clamp(2.5rem, 6vw, 4rem) clamp(1rem, 4vw, 2rem);
+    }
+
+    .formats-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      gap: 1rem;
+      margin-top: 2rem;
+    }
+
+    .format-card {
+      background: rgba(255, 255, 255, .12);
+      border: 1px solid rgba(255, 255, 255, .2);
+      border-radius: var(--radius-sm);
+      padding: 1.2rem;
+      display: flex;
+      flex-direction: column;
+      gap: .5rem;
+    }
+
+    .format-icon {
+      font-size: 1.5rem;
+    }
+
+    .format-name {
+      font-weight: 600;
+      color: #fff;
+      font-size: var(--fs-small);
+    }
+
+    .format-desc {
+      font-size: var(--fs-small);
+      color: #c3ece2;
+      line-height: 1.4;
+    }
+
+    /* ── DISCIPLINAS ── */
+    .subjects-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 1.2rem;
+      margin-top: 2rem;
+    }
+
+    .subject-card {
+      background: var(--white);
+      border: 1px solid var(--rule);
+      border-radius: var(--radius);
+      padding: 1.5rem;
+    }
+
+    .subject-card h3 {
+      color: var(--ink);
+      font-size: 1.1rem;
+    }
+
+    .subject-card p {
+      font-size: var(--fs-small);
+      margin-bottom: 0;
+    }
+
+    .subject-badge {
+      display: inline-block;
+      padding: .22rem .6rem;
+      border-radius: 4px;
+      font-size: .65rem;
+      font-weight: 600;
+      letter-spacing: .08em;
+      text-transform: uppercase;
+      margin-bottom: .7rem;
+    }
+
+    /* ── TABELA COMPARATIVA ── */
+    .compare-table-wrap {
+      overflow-x: auto;
+      margin-top: 2rem;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: var(--fs-small);
+      background: var(--white);
+      border-radius: var(--radius);
+      overflow: hidden;
+      border: 1px solid var(--rule);
+    }
+
+    thead {
+      background: var(--ink);
+      color: #fff;
+    }
+
+    thead th {
+      padding: .9rem 1.2rem;
+      text-align: left;
+      font-weight: 600;
+      font-size: .75rem;
+      letter-spacing: .06em;
+      text-transform: uppercase;
+    }
+
+    tbody tr {
+      border-bottom: 1px solid var(--rule);
+    }
+
+    tbody tr:last-child {
+      border-bottom: none;
+    }
+
+    tbody td {
+      padding: .85rem 1.2rem;
+      vertical-align: top;
+      color: var(--ink-soft);
+    }
+
+    tbody td:first-child {
+      color: var(--ink);
+      font-weight: 500;
+    }
+
+    .badge-gemini {
+      display: inline-block;
+      background: var(--gem-light);
+      color: var(--gem);
+      padding: .2rem .6rem;
+      border-radius: 4px;
+      font-size: .65rem;
+      font-weight: 700;
+      letter-spacing: .06em;
+      text-transform: uppercase;
+    }
+
+    .badge-nb {
+      display: inline-block;
+      background: var(--jade-light);
+      color: var(--jade);
+      padding: .2rem .6rem;
+      border-radius: 4px;
+      font-size: .65rem;
+      font-weight: 700;
+      letter-spacing: .06em;
+      text-transform: uppercase;
+    }
+
+    /* ── CUIDADOS ── */
+    .care-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(270px, 1fr));
+      gap: 1.2rem;
+      margin-top: 2rem;
+    }
+
+    .care-card {
+      border-radius: var(--radius);
+      padding: 1.5rem;
+      border-left: 4px solid;
+    }
+
+    .care-card.lgpd {
+      background: #fff8e8;
+      border-color: var(--amber);
+    }
+
+    .care-card.review {
+      background: #f0f0f9;
+      border-color: var(--gem);
+    }
+
+    .care-card.crit {
+      background: var(--jade-light);
+      border-color: var(--jade);
+    }
+
+    .care-card h3 {
+      font-size: 1rem;
+      margin-bottom: .5rem;
+      color: var(--ink);
+    }
+
+    .care-card p {
+      font-size: var(--fs-small);
+      margin-bottom: 0;
+    }
+
+    /* ── ATIVIDADE ── */
+    .activity-section {
+      background: linear-gradient(135deg, #1c2a4a 0%, #1c7a5e 100%);
+      border-radius: var(--radius);
+    }
+
+    .activity-inner {
+      max-width: var(--max);
+      margin: 0 auto;
+      padding: clamp(2.5rem, 6vw, 4rem) clamp(1rem, 4vw, 2rem);
+    }
+
+    .activity-section .section-eyebrow {
+      color: #6edfc0;
+    }
+
+    .activity-section h2 {
+      color: #fff;
+    }
+
+    .activity-section p {
+      color: #c3d8d0;
+    }
+
+    .steps-row {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 1.2rem;
+      margin-top: 2rem;
+    }
+
+    @media (max-width: 640px) {
+      .steps-row {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .step-card {
+      background: rgba(255, 255, 255, .1);
+      border: 1px solid rgba(255, 255, 255, .18);
+      border-radius: var(--radius-sm);
+      padding: 1.4rem;
+    }
+
+    .step-num {
+      font-family: 'DM Serif Display', serif;
+      font-size: 2.5rem;
+      color: rgba(255, 255, 255, .25);
+      line-height: 1;
+      margin-bottom: .5rem;
+    }
+
+    .step-card h3 {
+      color: #fff;
+      font-size: 1rem;
+      margin-bottom: .4rem;
+    }
+
+    .step-card p {
+      font-size: var(--fs-small);
+      color: #c3d8d0;
+      margin-bottom: 0;
+    }
+
+    .step-time {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: .65rem;
+      color: #6edfc0;
+      margin-bottom: .6rem;
+      letter-spacing: .08em;
+    }
+
+    .prompt-template {
+      background: rgba(0, 0, 0, .25);
+      border-radius: var(--radius-sm);
+      border: 1px solid rgba(255, 255, 255, .15);
+      padding: 1.4rem 1.6rem;
+      margin-top: 2rem;
+    }
+
+    .prompt-template-label {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: .65rem;
+      letter-spacing: .12em;
+      text-transform: uppercase;
+      color: #6edfc0;
+      margin-bottom: .7rem;
+      display: block;
+      font-weight: 600;
+    }
+
+    .prompt-template code {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: .8rem;
+      line-height: 1.75;
+      color: #e0ede9;
+      display: block;
+    }
+
+    .tpl-var {
+      color: #f5d17a;
+    }
+
+    /* ── LINKS ── */
+    .links-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: .8rem;
+      margin-top: 2rem;
+    }
+
+    .link-item {
+      background: var(--white);
+      border: 1px solid var(--rule);
+      border-radius: var(--radius-sm);
+      padding: 1rem 1.2rem;
+      text-decoration: none;
+      color: var(--ink);
+      display: flex;
+      align-items: center;
+      gap: .75rem;
+      font-size: var(--fs-small);
+      font-weight: 500;
+      transition: all .18s;
+    }
+
+    .link-item:hover {
+      border-color: var(--jade);
+      color: var(--jade);
+    }
+
+    .link-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--jade);
+      flex-shrink: 0;
+    }
+
+    /* ── FOOTER ── */
+    footer {
+      border-top: 1px solid var(--rule);
+      padding: 2rem clamp(1rem, 4vw, 2rem);
+      text-align: center;
+      font-size: var(--fs-small);
+      color: var(--ink-soft);
+    }
+
+    footer strong {
+      color: var(--ink);
+    }
+
+    /* ── MISC ── */
+    .pill {
+      display: inline-flex;
+      align-items: center;
+      gap: .35rem;
+      background: var(--white);
+      border: 1px solid var(--rule);
+      border-radius: 20px;
+      padding: .35rem .85rem;
+      font-size: .7rem;
+      font-weight: 600;
+      color: var(--ink-soft);
+      margin: .25rem;
+    }
+
+    .hero-pills {
+      margin-bottom: 2rem;
+      margin-top: -0.5rem;
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+
+      *,
+      *::before,
+      *::after {
+        animation: none !important;
+        transition: none !important;
+      }
+    }
+  </style>
+</head>
+
+<body>
+
+  <!-- NAV -->
+  <nav>
+    <a href="#" class="nav-brand">Escola São Tiago &nbsp;<span>·</span>&nbsp; IA na Sala de Aula</a>
+    <ul class="nav-links">
+      <li><a href="#ferramentas">Ferramentas</a></li>
+      <li><a href="#disciplinas">Disciplinas</a></li>
+      <li><a href="#cuidados">Cuidados</a></li>
+      <li><a href="#atividade">Atividade</a></li>
+    </ul>
+  </nav>
+
+  <!-- HERO -->
+  <div class="hero">
+    <div>
+      <div class="hero-eyebrow">Oficina de IA para Professores · 2026</div>
+      <h1>Gemini e <em>NotebookLM</em> na sala de aula</h1>
+      <div class="hero-pills">
+        <span class="pill">📚 Ensino Fundamental e Médio</span>
+        <span class="pill">🔑 Conta Google Workspace for Education</span>
+        <span class="pill">⚡ Nível intermediário</span>
+      </div>
+      <p class="hero-sub">Guia prático de inteligência artificial para economizar tempo no planejamento, na produção de
+        material e na avaliação — sem reinventar a roda.</p>
+      <div class="hero-ctas">
+        <a href="#atividade" class="btn btn-primary">Ir para a atividade prática</a>
+        <a href="#ferramentas" class="btn btn-ghost">Ver as ferramentas →</a>
+      </div>
+    </div>
+
+    <div class="hero-visual">
+      <div class="tool-row">
+        <div class="tool-icon icon-gem">🔮</div>
+        <div>
+          <div class="tool-label">Gemini</div>
+          <div class="tool-desc"><span class="tool-name">Cria conteúdo novo</span> a partir de uma instrução sua. Planos
+            de aula, exercícios, comunicados, slides — integrado ao Docs, Forms e Classroom.</div>
+        </div>
+      </div>
+      <div class="tool-row">
+        <div class="tool-icon icon-nb">📓</div>
+        <div>
+          <div class="tool-label">NotebookLM</div>
+          <div class="tool-desc"><span class="tool-name">Trabalha só com o seu material.</span> Você sobe a apostila,
+            ele gera podcast, quiz, mapa mental e flashcards — sem inventar nada de fora.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- O QUE JÁ NA PRIMEIRA SEMANA -->
+  <div class="section-divider"></div>
+  <section>
+    <div class="section-eyebrow">Já na primeira semana</div>
+    <h2>O que você consegue fazer agora</h2>
+    <div class="subjects-grid" style="margin-top:1.5rem;">
+      <div class="subject-card" style="border-top:3px solid var(--gem);">
+        <div class="subject-badge" style="background:var(--gem-light);color:var(--gem);">Gemini</div>
+        <h3>Plano de aula alinhado à BNCC</h3>
+        <p>Em poucos minutos, com objetivos, atividades e avaliação prontos para ajustar.</p>
+      </div>
+      <div class="subject-card" style="border-top:3px solid var(--jade);">
+        <div class="subject-badge" style="background:var(--jade-light);color:var(--jade);">NotebookLM</div>
+        <h3>Provas e exercícios do seu conteúdo</h3>
+        <p>Questões geradas a partir da sua própria apostila — sem nenhuma informação inventada.</p>
+      </div>
+      <div class="subject-card" style="border-top:3px solid var(--amber);">
+        <div class="subject-badge" style="background:var(--amber-light);color:var(--amber);">NotebookLM</div>
+        <h3>Apostila virada em podcast e flashcards</h3>
+        <p>Um material, múltiplos formatos. O aluno escolhe o que funciona melhor para ele.</p>
+      </div>
+      <div class="subject-card" style="border-top:3px solid var(--gem);">
+        <div class="subject-badge" style="background:var(--gem-light);color:var(--gem);">Gemini</div>
+        <h3>Apresentação de slides sem começar do zero</h3>
+        <p>Gera a estrutura completa a partir do tema; você só ajusta o que quiser.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- FERRAMENTAS -->
+  <div class="section-divider" id="ferramentas"></div>
+  <section>
+    <div class="section-eyebrow">As duas ferramentas</div>
+    <h2>Cada uma serve para uma coisa</h2>
+    <p>O erro mais comum é tentar fazer tudo em uma só. Entender a diferença poupa tempo e frustração.</p>
+    <div class="paths-grid">
+      <div class="path-card gem-card">
+        <span class="path-card-tag gem-tag">Gemini</span>
+        <h3>Criação</h3>
+        <p class="tagline">Crie algo novo a partir da sua instrução.</p>
+        <ul class="path-list">
+          <li>Planos de aula completos com objetivos e avaliação</li>
+          <li>Listas de exercícios em vários níveis de dificuldade</li>
+          <li>Adaptação do mesmo conteúdo para turmas diferentes</li>
+          <li>Rascunho de bilhetes e comunicados para as famílias</li>
+          <li>Geração de slides e ideias de abertura de aula</li>
+          <li>Correção e reescrita em linguagem adequada à faixa etária</li>
+        </ul>
+      </div>
+      <div class="path-card nb-card">
+        <span class="path-card-tag nb-tag">NotebookLM</span>
+        <h3>Ancoragem</h3>
+        <p class="tagline">Responde só pelo que está no seu material.</p>
+        <ul class="path-list">
+          <li>Questões e provas geradas a partir da sua apostila</li>
+          <li>Resumo em áudio (podcast) do conteúdo enviado</li>
+          <li>Mapa mental dos conceitos e conexões</li>
+          <li>Flashcards e quizzes para revisão ativa</li>
+          <li>Slides e infográficos a partir de uma fonte só</li>
+          <li>Respostas sempre citando a página ou o trecho de origem</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <!-- PROMPT -->
+  <div class="section-divider"></div>
+  <section style="padding:0;">
+    <div class="prompt-section">
+      <div class="prompt-inner">
+        <div>
+          <div class="section-eyebrow">Como escrever bem</div>
+          <h2 style="color:#fff;">O prompt faz toda a diferença</h2>
+          <p>Quanto mais contexto você der, melhor a resposta. Diga o nível da turma, o tempo de aula, o tema exato e o
+            formato que quer.</p>
+        </div>
+        <div class="prompt-compare">
+          <div class="prompt-block bad">
+            <span class="prompt-label">✗ Prompt fraco</span>
+            Faça um plano de aula sobre frações.
+          </div>
+          <div class="prompt-block good">
+            <span class="prompt-label">✓ Prompt bom</span>
+            Crie um plano de aula de 50 minutos sobre adição de frações com denominadores diferentes, para o 6º ano do
+            Ensino Fundamental, usando rotação por estações. Inclua objetivo de aprendizagem alinhado à BNCC, atividade
+            de abertura, explicação principal, exercício em dupla e avaliação rápida no final.
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- NOTEBOOKLM FORMATOS -->
+  <div class="section-divider"></div>
+  <section style="padding:0;">
+    <div class="nb-section">
+      <div class="nb-inner">
+        <div class="section-eyebrow">NotebookLM</div>
+        <h2>Um material, vários formatos</h2>
+        <p>Suba a apostila uma vez. O NotebookLM transforma em tudo isso — cada aluno escolhe o que aprende melhor.</p>
+        <div class="formats-grid">
+          <div class="format-card">
+            <div class="format-icon">🎙️</div>
+            <div class="format-name">Podcast</div>
+            <div class="format-desc">Conversa entre dois apresentadores explicando o conteúdo. Em português, vozes
+              naturais.</div>
+          </div>
+          <div class="format-card">
+            <div class="format-icon">🗺️</div>
+            <div class="format-name">Mapa mental</div>
+            <div class="format-desc">Diagrama com os conceitos e como eles se conectam. Ótimo antes da prova.</div>
+          </div>
+          <div class="format-card">
+            <div class="format-icon">🃏</div>
+            <div class="format-name">Flashcards</div>
+            <div class="format-desc">Cartões de pergunta e resposta para revisão ativa, com progresso salvo.</div>
+          </div>
+          <div class="format-card">
+            <div class="format-icon">✅</div>
+            <div class="format-name">Quiz</div>
+            <div class="format-desc">Questionários para o aluno treinar sozinho, gerados a partir do seu material.</div>
+          </div>
+          <div class="format-card">
+            <div class="format-icon">📊</div>
+            <div class="format-name">Slides e infográficos</div>
+            <div class="format-desc">Apresentação pronta para editar. Você ajusta em vez de começar do zero.</div>
+          </div>
+          <div class="format-card">
+            <div class="format-icon">🎥</div>
+            <div class="format-name">Resumo em vídeo</div>
+            <div class="format-desc">Vídeo curto explicando os pontos centrais do conteúdo, com apoio visual.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- DISCIPLINAS -->
+  <div class="section-divider" id="disciplinas"></div>
+  <section>
+    <div class="section-eyebrow">Casos de uso</div>
+    <h2>Por disciplina</h2>
+    <p>Adapte à sua realidade — troque o tema e o ano escolar.</p>
+    <div class="subjects-grid">
+      <div class="subject-card">
+        <div class="subject-badge" style="background:#fde8e8;color:#c0392b;">Língua Portuguesa</div>
+        <h3>Contos e redação</h3>
+        <p>Suba os contos do bimestre no NotebookLM e gere flashcards, quiz e podcast. No Gemini, peça propostas de
+          redação e modelos de correção comentada.</p>
+      </div>
+      <div class="subject-card">
+        <div class="subject-badge" style="background:#e8f0fe;color:#1a73e8;">Matemática</div>
+        <h3>Listas diferenciadas</h3>
+        <p>No Gemini, gere exercícios em três níveis de dificuldade sobre o mesmo conteúdo. Configure um Gem que resolva
+          problemas passo a passo para alunos com dificuldade.</p>
+      </div>
+      <div class="subject-card">
+        <div class="subject-badge" style="background:#fef4e0;color:var(--amber);">História e Geografia</div>
+        <h3>Capítulo vira debate</h3>
+        <p>Suba o capítulo do livro no NotebookLM e gere mapa mental e quiz. Peça ao Gemini uma linha do tempo e duas
+          perguntas de debate para a aula.</p>
+      </div>
+      <div class="subject-card">
+        <div class="subject-badge" style="background:var(--jade-light);color:var(--jade);">Ciências / Bio / Quím / Fís
+        </div>
+        <h3>Artigo denso acessível</h3>
+        <p>Transforme artigos e capítulos em podcast e infográfico no NotebookLM. No Gemini, monte roteiro de
+          experimento e prova objetiva com correção automática no Forms.</p>
+      </div>
+      <div class="subject-card">
+        <div class="subject-badge" style="background:var(--gem-light);color:var(--gem);">Filosofia · Ensino Médio</div>
+        <h3>Mito da Caverna</h3>
+        <p>Suba o texto de Platão no NotebookLM → podcast de revisão antes da aula, mapa mental dos conceitos, quiz. A
+          discussão em sala rende muito mais quando todos chegaram preparados.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- TABELA QUANDO USAR -->
+  <div class="section-divider"></div>
+  <section>
+    <div class="section-eyebrow">Guia de decisão</div>
+    <h2>Quando usar cada uma</h2>
+    <p>A pergunta certa nunca é qual é a melhor — é qual usar para cada tarefa.</p>
+    <div class="compare-table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>Situação</th>
+            <th>Ferramenta</th>
+            <th>Por quê</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Criar um plano de aula do zero</td>
+            <td><span class="badge-gemini">Gemini</span></td>
+            <td>Ele gera conteúdo novo a partir da sua instrução.</td>
+          </tr>
+          <tr>
+            <td>Gerar questões a partir da apostila oficial</td>
+            <td><span class="badge-nb">NotebookLM</span></td>
+            <td>Garante que as perguntas saiam só daquele material.</td>
+          </tr>
+          <tr>
+            <td>Escrever um comunicado para as famílias</td>
+            <td><span class="badge-gemini">Gemini</span></td>
+            <td>Texto novo, com ajuste de tom.</td>
+          </tr>
+          <tr>
+            <td>Transformar um livro em podcast e flashcards</td>
+            <td><span class="badge-nb">NotebookLM</span></td>
+            <td>Vários formatos a partir de uma fonte fixa.</td>
+          </tr>
+          <tr>
+            <td>Trabalhar dentro do Docs, Slides ou Gmail</td>
+            <td><span class="badge-gemini">Gemini</span></td>
+            <td>Está integrado nesses aplicativos.</td>
+          </tr>
+          <tr>
+            <td>Revisar uma unidade densa sem risco de erro</td>
+            <td><span class="badge-nb">NotebookLM</span></td>
+            <td>Responde ancorado nas fontes e cita a origem.</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- CUIDADOS -->
+  <div class="section-divider" id="cuidados"></div>
+  <section>
+    <div class="section-eyebrow">Boas práticas</div>
+    <h2>Cuidados que não dá para ignorar</h2>
+    <div class="care-grid">
+      <div class="care-card lgpd">
+        <h3>🔒 Dados de alunos e LGPD</h3>
+        <p>Evite colocar nome completo, documento, endereço ou informações de saúde de alunos em qualquer IA. Prefira
+          sempre as ferramentas dentro da conta institucional do Workspace for Education e use de forma anônima sempre
+          que possível. Regras são mais rígidas para menores de idade.</p>
+      </div>
+      <div class="care-card review">
+        <h3>👁️ A revisão humana é obrigatória</h3>
+        <p>Toda saída de IA precisa passar pelo seu olhar antes de chegar ao aluno. O Gemini pode errar ou inventar um
+          dado — confira fatos, números e datas. O NotebookLM é mais confiável por trabalhar com o seu material, mas
+          mesmo assim vale revisar. A responsabilidade pedagógica continua sendo sua.</p>
+      </div>
+      <div class="care-card crit">
+        <h3>🧠 IA é ferramenta, não atalho de raciocínio</h3>
+        <p>Com os alunos, o objetivo é apoiar o raciocínio, não substituí-lo. Atividades bem desenhadas pedem que o
+          aluno analise, compare e questione a resposta da IA — em vez de só copiar. Isso desenvolve pensamento crítico
+          e letramento digital.</p>
+      </div>
+    </div>
+
+    <div
+      style="background:var(--amber-light);border:1px solid #f5d07a;border-radius:var(--radius);padding:1.5rem;margin-top:1.5rem;">
+      <h3 style="color:var(--amber);font-size:1rem;margin-bottom:.5rem;">⚠️ Sobre detectores de IA nos trabalhos dos
+        alunos</h3>
+      <p style="font-size:var(--fs-small);margin-bottom:.5rem;">Ferramentas como GPTZero, ZeroGPT e Copyleaks dão uma
+        estimativa, não uma certeza — e erram bastante, especialmente com textos em português e escrita formal. Num caso
+        bastante citado, artigos de professores foram apontados como escritos por IA.</p>
+      <p style="font-size:var(--fs-small);margin-bottom:0;font-weight:600;color:var(--ink);">Regra de ouro: use o
+        resultado como ponto de partida para uma conversa, nunca como veredito. Não reprove nem acuse com base apenas no
+        número que o site mostrou.</p>
+    </div>
+  </section>
+
+  <!-- ATIVIDADE PRÁTICA -->
+  <div class="section-divider" id="atividade"></div>
+  <section style="padding:0;">
+    <div class="activity-section">
+      <div class="activity-inner">
+        <div class="section-eyebrow">Atividade da oficina</div>
+        <h2>Saia daqui com um produto pronto</h2>
+        <p>Separe um material que você já usa — um capítulo, uma apostila, um texto ou um tema da sua próxima aula.</p>
+        <div class="steps-row">
+          <div class="step-card">
+            <div class="step-num">1</div>
+            <div class="step-time">~15 minutos · Gemini</div>
+            <h3>Criar com o Gemini</h3>
+            <p>Escreva um prompt completo com nível da turma, tempo de aula, tema e formato. Gere um plano de aula ou
+              lista de exercícios. Ajuste até ficar do seu jeito.</p>
+          </div>
+          <div class="step-card">
+            <div class="step-num">2</div>
+            <div class="step-time">~15 minutos · NotebookLM</div>
+            <h3>Aprofundar com o NotebookLM</h3>
+            <p>Suba o seu material em um notebook e gere pelo menos dois formatos diferentes — por exemplo, podcast +
+              flashcards, ou mapa mental + quiz.</p>
+          </div>
+          <div class="step-card">
+            <div class="step-num">3</div>
+            <div class="step-time">~10 minutos · Revisão</div>
+            <h3>Finalizar</h3>
+            <p>Revise com o seu olhar de professor, corrija o que precisar e salve o material. Pronto para usar na
+              próxima aula.</p>
+          </div>
+        </div>
+
+        <div class="prompt-template">
+          <span class="prompt-template-label">📋 Modelo de prompt para a Etapa 1 — cole e adapte</span>
+          <code>
+          Crie <span class="tpl-var">[um plano de aula / uma lista de 10 exercícios]</span> sobre <span class="tpl-var">[SEU TEMA]</span> para o <span class="tpl-var">[ANO ESCOLAR]</span> do <span class="tpl-var">[Ensino Fundamental / Médio]</span>. Duração de <span class="tpl-var">[TEMPO]</span>. Inclua objetivo de aprendizagem alinhado à BNCC, atividade de abertura, parte principal e uma avaliação curta no final. Use linguagem adequada à faixa etária.
+        </code>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- LINKS -->
+  <div class="section-divider"></div>
+  <section>
+    <div class="section-eyebrow">Referências</div>
+    <h2>Endereços para acessar as ferramentas</h2>
+    <p>Todos funcionam com a conta institucional da escola, sem custo adicional.</p>
+    <div class="links-grid">
+      <a href="https://gemini.google.com" target="_blank" rel="noopener" class="link-item">
+        <span class="link-dot" style="background:var(--gem);"></span>Gemini
+      </a>
+      <a href="https://notebooklm.google.com" target="_blank" rel="noopener" class="link-item">
+        <span class="link-dot"></span>NotebookLM
+      </a>
+      <a href="https://classroom.google.com/ai" target="_blank" rel="noopener" class="link-item">
+        <span class="link-dot"></span>Gemini no Classroom
+      </a>
+      <a href="https://canva.com/education" target="_blank" rel="noopener" class="link-item">
+        <span class="link-dot" style="background:var(--amber);"></span>Canva for Education
+      </a>
+      <a href="https://gptzero.me/pt" target="_blank" rel="noopener" class="link-item">
+        <span class="link-dot" style="background:#888;"></span>GPTZero (detector de IA)
+      </a>
+    </div>
+  </section>
+
+  <!-- FOOTER -->
+  <footer>
+    <strong>Conectando Comunidades · Escola São Tiago</strong><br>
+    Material de apoio da Oficina de Inteligências Artificiais para Professores · 2026<br>
+    <span style="font-size:.75rem;margin-top:.4rem;display:block;">Nenhuma dessas ferramentas substitui o professor.
+      Elas tiram da sua frente o trabalho repetitivo para sobrar tempo com o que realmente exige um ser humano na
+      sala.</span>
+  </footer>
+
+</body>
+
+</html>
